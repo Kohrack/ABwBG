@@ -1,0 +1,185 @@
+---
+title: "Zadanie 3"
+output: html_document
+date: "2024-10-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Część 1
+## zadanie 1
+$a*h/2$ .Przypiszmy
+```{r}
+a <- 10
+h <- 5
+```
+zdefiniuj pole trójkąta
+```{r}
+pole_Trójkąta <-a*h/2
+```
+Sprawdzamy wynik:
+```{r}
+print(pole_Trójkąta)
+```
+
+## zadanie 2
+Znajdź resztę z dzielenia 256 przez 7 oraz wynik dzielenia całkowitego.
+```{r}
+f<- 256%%7
+```
+```{r}
+print.by(f)
+```
+
+## zadanie 3
+ Oblicz wartość wyrażenia 
+eln(5), używając funkcji exp() i log()
+
+```{r}
+
+```
+## zadanie 4
+Zaokrąglij liczbę 7,895 do najbliższej liczby całkowitej: w górę i w dół.
+```{r}
+w_dół <- floor(7.895)
+```
+
+```{r}
+print(w_dół)
+```
+```{r}
+w_gore <- ceiling(7.895)
+```
+```{r}
+print(w_gore)
+```
+##zadanie 5
+
+# Część 2: Funkcje statystyczne
+# Zadanie 1
+*Dla wektora danych$[2,4,6,8,10]$, oblicz średnią arytmetyczną , mediane i wariacje*
+```{r definicja wektora}
+wektor <- c(2,4,6,8,10)
+
+```
+definiujemy miary statystyczne
+```{r}
+średnia <- mean(wektor)
+mediana <- median(wektor)
+wariacja<- var(wektor)
+
+```
+wyświetl
+```{r}
+print(średnia)
+print(mediana)
+print(wariacja)
+```
+
+## Zadanie 2  Weketor z 50 losowych liczb z przedziału od 1 do 100. Znajdź wartość minimalną, maksymalną oraz sumę wszystkich elementów.
+
+```{r}
+wektor2 <- c(1:100)
+```
+```{r}
+losowe <- sample(wektor2,size =50, replace = FALSE)
+```
+```{r}
+minimum <- min(losowe)
+maximum <- max(losowe)
+suma <- sum(losowe)
+print(minimum)
+print(maximum)
+print(suma)
+```
+```{r}
+suma <- sum(losowe)
+print(suma)
+```
+##Zadanie 3 Dla wektora danych [3,7,7,7,2,2,5]utwórz tabelę częstości występowania każdej wartości.
+
+# Część 3
+
+## 1: Stwórz wektor, który będzie zwracał wszystkie wartości od 0 do 1 co 0,1.
+Defeniujemy wektor: 
+```{r}
+wektor2 <- seq(from = 0, to = 1, by = 0.1)
+```
+```{r}
+print(wektor2)
+```
+#zadanie 2 Dla wektora [2,4,6,8,10] wybierz drugi i czwarty element.
+```{r}
+wektor3 <-c(2,4,6,8,10)
+drugi <- wektor3[2:6]
+czwarty <- wektor3 [6:10]
+```
+#Część czwarta
+## Zadanie 1 Utwórz ramkę danych zawierającą informacje o produktach: nazwa (tekst), cena (liczba), ilość (liczba całkowita).
+```{r}
+dane_ramka <- data.frame(
+  nazwa=c("Costam"),
+  cena=c("4,99"),
+  ilość=c("500")
+  
+  )
+  
+```
+## Zadanie 2 Wyświetl kolumnę 'nazwa' z ramki danych produktów.
+
+```{r}
+dane_ramka$nazwa
+```
+##Zadanie3 Dodaj nową kolumnę 'wartość' obliczaną jako cena pomnożona przez ilość.
+```{r}
+dane_ramka$wartość <- c("23")
+```
+## zęść 5: Funkcje logiczne i warunkowe
+# zadanie 1 : Sprawdź, czy liczba 7 jest większa od 5 i jednocześnie mniejsza od 10.
+```{r}
+x <- 7
+y <- 7
+(x > 5) | (y < 10) 
+```
+# Zadanie 2Dla wektora : [−3,2,5]użyj funkcji ifelse(), aby przypisać "Dodatnia" lub "Ujemna" do każdego elementu.
+```{r}
+wektor4 <-c(-3,2,5)
+wyniki <- ifelse(wektor4 > 0, "Dodatni", "Niedodatni")
+```
+# Zadanie 3 : Sprawdź, czy jakikolwiek element wektora [FALSE,FALSE,TRUE]jest prawdziwy.
+
+```{r}
+wektor5 <-c(FALSE,FALSE,TRUE)
+any(wektor = TRUE)
+```
+## Zadanie 4 : Znajdź indeksy liczb parzystych w wektorze [1,2,3,4,5,6].
+
+```{r}
+wektor5 <-c(1,2,3,4,5,6)
+
+```
+# Część6 
+## zadanie 1 Napisz pętlę for, która wypisze liczby od 1 do 5.
+
+```{r}
+for (i in 1:5) {
+  print(paste("Iteracja", i))
+}
+```
+## Zadanie 2: Użyj pętli while, aby obliczyć silnię liczby 5.
+```{r}
+n <- 5
+silnia <- 1
+i <- 1
+```
+```{r}
+while (i<= 5) {
+  silnia <-silnia * i
+  i <- i + 1
+}
+```
+```{r}
+print(silnia)
+```
+
