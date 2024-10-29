@@ -1,0 +1,73 @@
+---
+title: "Biocondunctor intro"
+output: html_document
+date: "2024-10-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+instalacja pakietu ```BiocManager```
+
+```{r}
+install.packages("BiocManager")
+```
+```{r}
+BiocManager::install("GenomicFeatures")
+```
+```{r}
+BiocManager::install("library("GenomicFeatures") )
+```
+```{r}
+BiocManager::install("ShortRead")
+```
+```{r}
+BiocManager::install(
+```
+
+
+```{r}
+"Biostrings"
+```
+
+
+```{r}
+)
+```
+
+```{r}
+library(BiocManager) 
+BiocManager::install("GenomicFeatures")
+```
+```{r}
+library("GenomicFeatures") 
+```
+```{r}
+library("ShortRead") 
+```
+```{r}
+library(Biostrings)
+```
+```{r}
+
+```
+
+```{r}
+dna_seqs <- readDNAStringSet("C:/Users/homer/Downloads/examples.fasta")
+```
+```{r}
+dna_seqs[1:5]
+```
+```{r}
+rev_comp_seqs <- reverseComplement(dna_seqs)
+```
+```{r}
+rev_comp_seqs[1:5]
+```
+```{r}
+gc_content <- letterFrequency(dna_seqs, letters = c("G", "C"), as.prob = TRUE)
+gc_content
+```
+
