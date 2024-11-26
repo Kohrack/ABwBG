@@ -1,0 +1,231 @@
+---
+title: "Escherichia coli"
+author: "Wojciech Błaszczyk"
+date: "2024-11-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Sprawdzam obecność Pakietu Biocmanager iinstaluje go jeżeli go nie ma 
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+```
+
+# Ładuje bibliotekę Shortreads w celu używania wielu innych funkcji
+```{r}
+library(ShortRead)
+```
+# Instaluje i ładuje Bibliotekę GenomicFeatures do reszty używanych funkcjii
+```{r}
+BiocManager::install("GenomicFeatures")
+```
+
+```{r}
+library(GenomicFeatures)
+```
+
+# Wgrywam plik  FASTQ podany w zadaniu z jego lokalizacji w systemie. Następnie czytam go za pomocą reads by sprawdzić jego długość i odczyty. Następnie generuje raport html jego właściwości 
+```{r}
+
+fq_file <- "C:/Users/homer/Desktop/Data2/ecoli_raw.fq" 
+fq_reads <- readFastq(fq_file)
+# Wczytanie odczytów
+reads <- readFastq(fq_file)
+
+# Podstawowe informacje
+length(reads)  # liczba odczytów
+reads[1]       # pierwszy odczyt
+```
+
+```{r}
+# Kontrola jakości
+qa_results <- qa(fq_file, type = "fastq")
+report(qa_results, dest = "C:/Users/homer/Desktop/Data2")
+```
+
+# W celu sprawdzenia innych ważnych do jego analizy danych sprawdzam zawartość nukleotydów GC jak i AT . Następnie wizualizuje je funkcją Hist
+```{r}
+gc_content <- letterFrequency(sread(fq_reads), letters = "GC", as.prob = TRUE)
+hist(gc_content, breaks = 50, main = "Zawartość GC w oryginalnych odczytach", xlab = "Procent GC")
+at_content <- letterFrequency(sread(fq_reads), letters = "AT", as.prob = TRUE)
+hist(at_content, breaks = 50, main = "Zawartość AT w oryginalnych odczytach", xlab = "Procent AT")
+```
+# Rozpoczynam poprawę jakości surowych danych poprzez funkcje trimmtail. w nim k to Liczba kolejnych baz o jakości poniżej progu, która jest wymagana do rozpoczęcia przycinania a a to Symbol jakości (jeden znak), który określa próg jakości baz. Bazy o jakości niższej niż ten symbol są uznawane za niskiej jakości a halfwidth to Połowa szerokości okna średniej ruchomej (w bazach) używana do wygładzania wartości jakości.
+
+```{r}
+library(ShortRead)
+fq_reads1 <- readFastq("C:/Users/homer/Desktop/Data2/ecoli_raw.fq")
+ # Przycinanie odczytów 
+   trimmed_reads1 <- trimTailw(fq_reads1, k = 2, a = "B", halfwidth = 1)
+```
+
+# B jako symbol jakości oznacza wartość jakości Phred conajmniej 66 
+
+```{r}
+symbol <- intToUtf8(33 + 33)
+```
+
+# Porównuje długości między surowymi danymi a po przycięciu. W ten sposób widzę że są poprawnie przycięte
+
+```{r}
+length(fq_reads1)
+length(trimmed_reads1)
+
+
+sum(width(trimmed_reads1) < width(fq_reads1))
+```
+# Następnie Usuwam odczyty o ogólnie niskiej jakości lub te zbyt krótkie za pomocą filtracjii z wcześniej przyciętych odczytów.
+```{r}
+   # Filtrowanie odczytów 
+   filtered_reads1 <- trimmed_reads1[width(trimmed_reads1) >= 50]
+
+```
+# Ponownie porównuje długości odczytów
+
+```{r}
+   # Odczyty forward
+   length(fq_reads1)            # Przed przycinaniem
+   length(trimmed_reads1)       # Po przycinaniu
+   length(filtered_reads1)      # Po filtracji
+```
+
+# Sprawdzam jaki procent odczytów zachował się po filtracjii
+```{r}
+length(filtered_reads1)/length(trimmed_reads1)*100
+```
+
+# Tworzę nowy plik FASTQ z odfiltrowanych odczytów
+
+``{r}
+writeFastq(filtered_reads1, "C:/Users/homer/Desktop/Data2/ecoli_simulated1_processed.fq")
+```
+# Tworzę raport stworzony z nowo otrzymanych odfiltrowanych odczytów 
+```{r}
+qa_results1 <- qa("C:/Users/homer/Desktop/Data2/ecoli_simulated1_processed.fq", type = "fastq")
+report(qa_results1, dest = "C:/Users/homer/Desktop/Data2/QA_report_read1")
+```
+# Tworzę 3 histogramy do wizualnej reprezentacji danych z każdego etapu poprawiania jakości odczytu
+```{r}
+# Po przycinaniu (forward)
+hist(width(fq_reads1), breaks = 50, main = "Długość odczytów  przed przycinaniem")
+# Po przycinaniu (forward)
+hist(width(trimmed_reads1), breaks = 50, main = "Długość odczytów  po przycinaniu")
+hist(width(filtered_reads1), breaks = 50, main = "Długość odczytów  po filtrowaniu")
+```
+# Zajmuje się adapterami . Przycinami adaptery i zapisujemy je do dalszej analizy
+
+```{r}
+library(Biostrings)
+   adapter_seq <- DNAString("AGATCGGAAGAGC")
+```
+
+```{r}
+
+# Przycinanie adapterów z odczytów:
+trimmed_reads1_adapt <- trimLRPatterns(
+  Lpattern = adapter_seq,
+  subject = filtered_reads1
+)
+
+# Defuniujemy odczyty po przycięciu adapterów:
+filtered_reads1 <- trimmed_reads1_adapt
+
+
+```
+# Porównuje efekty przycinania co do ich długości przed i po przycięciu adapterów
+```{r}
+length(filtered_reads1)
+length(trimmed_reads1)
+
+```
+# Sprawdź ile odczytów zostało zmodyfikowanych
+```{r}
+   sum(width(filtered_reads1) < width(trimmed_reads1))
+
+```
+# Tworzę ostatni plik Fastq po opracowaniu adaptorów
+``{r}
+ writeFastq(filtered_reads1, "C:/Users/homer/Desktop/Data2/ecoli_simulated1_final.fq")
+```
+# Tworzę raport na podstawie tego 
+```{r}
+   qa_results1_final <- qa("C:/Users/homer/Desktop/Data2/ecoli_simulated1_final.fq", type = "fastq")
+   report(qa_results1_final, dest = "C:/Users/homer/Desktop/Data2/QA_report_read1_final")
+```
+# Do dalszej analizy i uzyskania pliku w formacie BAM muszę utworzyć plik FASTA na podstawie skróconego E.coli w Fastq
+```{r}
+library(ShortRead)
+library(Biostrings)
+
+# Wczytywanie  Fastq
+fastq_file <- readFastq("C:/Users/homer/Desktop/Data2/ecoli_simulated1_processed.fq")
+
+# przetwarzanie na Fasta
+fasta_sequences <- sread(fastq_file)
+
+
+# Write the sequences to a FASTA file
+writeXStringSet(fasta_sequences, "output_file1.fasta")
+
+```
+```{r}
+# Define the full path to the folder and filename
+folder_path <- "C:/Users/homer/Desktop/Data2/"
+output_file1 <- paste0(folder_path, "output_file1.fasta")
+
+# Save the sequences as a FASTA file in the specified folder
+writeXStringSet(fasta_sequences, output_file1)
+
+
+```
+
+# Na podstawie otrzymanego nowego pliku FASTA mogę porównać go z surowym Fast Q i wykonać align by zobaczyć jego dopasowanie . w ten sposób wytworzony zostanie plik BAM
+
+
+
+```{r}
+# Instalacja pakietu Rsubread
+BiocManager::install("Rsubread")
+library(Rsubread)
+```
+```{r}
+# Indeksowanie genomu referencyjnego
+buildindex(basename = "ecoli_index1", reference = "C:/Users/homer/Desktop/Data2/output_file1.fasta")
+
+```
+# Ze względu na błąd z powodu wymienionego powyżej potwórzonego chromosomu. Postanowiłem użyć innego pliku użytego do podobnego zadania z użyciem alignmentu w celu wykonania indexu ecoli 
+```{r}
+# Indeksowanie genomu referencyjnego
+buildindex(basename = "ecoli_index", reference = "C:/Users/homer/Downloads/ecoli_genome.fna.gz")
+
+align(index = "ecoli_index",
+      readfile1 = "C:/Users/homer/Desktop/Data2/ecoli_simulated1_processed.fq",
+      input_format = "FASTQ",
+      output_file = "C:/Users/homer/Desktop/Data2/ecoli_simulated1_processed.BAM")
+```
+# Obliczam pokrycie genomu w ten sposób też identyfikuje regiony o najwyższym i najniższym pokryciu.
+```{r}
+aln <- readGAlignments("C:/Users/homer/Desktop/Data2/ecoli_simulated1_processed.BAM")
+coverage_data <- coverage(aln)
+```
+# Wizualizuje otrzymane dane
+```{r}
+library(ggplot2)
+cov_df <- as.data.frame(coverage_data[[1]])
+head("cov_df")
+cov_df$position <- as.numeric(rownames(cov_df))
+
+
+pdf("C:/Users/homer/Desktop/Data2/wykres.pdf", width = 8, height = 6)
+
+ggplot(cov_df[1:25000, ], aes(x = position, y = value)) +
+  geom_line(color = "green") +
+  labs(title = "Pokrycie genomu E. coli",
+       x = "Pozycja",
+       y = "Liczba zmapowanych odczytów")
+       
+dev.off()
+```
