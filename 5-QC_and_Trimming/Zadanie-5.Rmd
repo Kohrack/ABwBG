@@ -7,7 +7,7 @@ date: "2024-11-23"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
+# instalacja biocmanager
 ```{r}
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
@@ -25,6 +25,7 @@ packageVersion("ShortRead")
 packageVersion("Rqc")
 packageVersion("Biostrings")
 ```
+# Wczytywanie sekwencji do badania
 ```{r}
 library(ShortRead)
 
@@ -46,36 +47,39 @@ report(qa_results, dest = "C:/Users/homer/Downloads")
 fq_file <- "C:/Users/homer/Downloads/SRR31479171.fastq.gz"
 fq_reads <- readFastq(fq_file)
 ```
-
+# sprawdzanie długości
 ```{r}
 length(fq_reads)
 ```
+# 1 do 5 sprawdzane
 ```{r}
 fq_reads[1:5]
 ```
+
 ```{r}
 qa_results <- qa(fq_file, type = "fastq")
 ```
+# tworzenie raportu
 ```{r}
 report(qa_results, dest = "C:/Users/homer/Downloads/Index2.html")
 ```
 
-#Tu mialo być Rqc
+# Tu mialo być Rqc
 ```{r}
 rqc_results <- rqc(path = "C:/Users/homer/Desktop/data", pattern = "SRR31479171.fastq.gz", sample = TRUE)
 ```
-
+# Wytworzenie wykresu dla zawartości GC
 ```{r}
 gc_content <- letterFrequency(sread(fq_reads), letters = "GC", as.prob = TRUE)
 hist(gc_content, breaks = 50, main = "Zawartość GC w oryginalnych odczytach", xlab = "Procent GC")
 ```
-
-``{r}
+# od tego momentu reszta akcji nie  mogła byćwykonanaz powodu braku gniazda srlist
+```{r}
 fq_files <- list.files(path = "C:/Users/homer/Downloads/SRR31479171.fastq.gz", pattern = "SRR31368982.fastq.gz", full.names = TRUE)
 qa_results <- qa(fq_files, type = "fastq")
 report(qa_results, dest = "QA_report_multi")
 ```
-``{r}
+```{r}
 # Przycinanie odczytów forward
    trimmed_reads1 <- trimTailw(fq_reads1, k = 2, a = "B", halfwidth = 1)
 
