@@ -1,0 +1,87 @@
+---
+title: "Zadanie 7"
+output: html_document
+date: "2024-11-19"
+---
+***Zadanie 7***
+# Sciąganie itp
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+```
+
+```{r}
+library(ShortRead)
+```
+# Pobranie plików FASTQ
+```{r}
+fq1 <- readFastq("C:/Users/homer/Downloads/SRR31368982.fastq")
+```
+# Analiza jakości odczytów
+```{r}
+qa_result <- qa("C:/Users/homer/Downloads/SRR31368982.fastq")
+report(qa_result, dest="C:/Users/homer/Downloads")
+```
+
+#instalacja Biostrings i Rsubread
+```{r}
+library(Biostrings)
+
+ref_genome <- readDNAStringSet("C:/Users/homer/Downloads/ecoli_genome.fna.gz")
+
+```
+```{r}
+BiocManager::install("Rsubread")
+library(Rsubread)
+```
+
+
+#Po pobraniu genu referencyjnego i budowanie indeksu 
+```{r}
+buildindex(basename = "ecoli_index", reference ="C:/Users/homer/Downloads/ecoli_genome.fna.gz")
+```
+#Mapowanie odczytów do genomu referencyjnego
+```{r}
+align(index = "ecoli_index",
+      readfile1 = "C:/Users/homer/Downloads/SRR31368982.fastq",
+      input_format = "FASTQ",
+      output_file = "C:/Users/homer/Downloads/aligned_sample.BAM")
+```
+
+#naliza wyników mapowania za pomocą genomicalignment
+```{r}
+install.packages("GenomicAlignments")
+```
+
+```{r}
+library(GenomicAlignments)
+```
+
+
+```{r}
+aln <- readGAlignments("C:/Users/homer/Downloads/aligned_sample.BAM")
+coverage_data <- coverage(aln)
+```
+#alignement i mapowanie alignmentu
+
+```{r}
+library(ggplot2)
+cov_df <- as.data.frame(coverage_data[[1]])
+head("cov_df")
+cov_df$position <- as.numeric(rownames(cov_df))
+
+
+pdf("C:/Users/homer/Downloads/pliku.pdf", width = 8, height = 6)
+
+ggplot(cov_df[1:25000, ], aes(x = position, y = value)) +
+  geom_line(color = "green") +
+  labs(title = "Pokrycie genomu E. coli",
+       x = "Pozycja",
+       y = "Liczba zmapowanych odczytów")
+       
+dev.off()
+```
+
