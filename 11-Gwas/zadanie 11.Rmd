@@ -1,19 +1,20 @@
 ---
-title: "Z11"
+title: "Zadanie 8"
 author: "Wojciech Błaszczyk"
-date: "2025-01-07"
+date: "2024-12-17"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-#Wczytywanie i załaduj poniższych pakietów:
+# Wczytywanie i załaduj poniższych pakietów:
 ```{r}
 install.packages("rrBLUP")
 ```
+
 ```{r}
+install.packages("BGLR")
 install.packages("DT")
 install.packages("SNPRelate")
 install.packages("dplyr")
@@ -21,21 +22,55 @@ install.packages("qqman")
 ```
 ```{r}
 install.packages("poolr")
-
 ```
 ```{r}
+install.packages("BGLR")
 library(rrBLUP)
 library(BGLR)
 library(DT)
-library(SNPRelate)
+```
+```{r}
+
+install.packages("dplyr")
 library(dplyr)
-library(poolr)
+install.packages("qqman")
 library(qqman)
+install.packages("poolr")
+library(poolr)
+```
+```{r}
+install.packages("BiocManager")
+library(BiocManager)
+BiocManager::install("SNPRelate")
+```
+```{r}
+library(SNPRelate)
 ```
 
-#Wczytywanie danych genotypowych z pliku ```.ped```, informacje o osobnikach z pliku ```.fam```, informacje o mapowaniu z pliku ``.map.``
+
 ```{r}
-setwd("C:/Users/homer/Desktop/GWAS")
+{for (pkg in packages){
+  if(!requir(pkg, character.only= TRUE)) {
+    install.packages(pkg, dependancies = TRUE)
+    }
+  }
+}
+```
+# Wczytywanie danych genotypowych z pliku ```.ped```, informacje o osobnikach z pliku ```.fam```, informacje o mapowaniu z pliku ``.map.``
+```{r}
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
+Geno <- read_ped("sativas413.ped")
+#wcz dane genomowe
+p = Geno$p
+n = Geno$n
+Geno =Geno$x
+```
+```{r}
+head(Geno)
+Geno
+```
+```{r}
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
 Geno <- read_ped("sativas413.ped")
 # wczytujemy kolumny jako osobne wartości
 p = Geno$p
@@ -44,64 +79,84 @@ Geno = Geno$x
 head(Geno)
 Geno
 
-FAM <- read.table("sativas413.fam")
+FAM <-read.table("sativas413.fam")
 head(FAM)
-
-MAP <- read.table("sativas413.map")
+```
+```{r}
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
+MAP <-read.table("sativas413.map")
 head(MAP)
 ```
-#Przekodowanie wartości markerów
+# Przekodowanie wartości markerów
 ```{r}
 Geno[Geno == 2] <- NA
 Geno[Geno == 0] <- 0
 Geno[Geno == 1] <- 1
 Geno[Geno == 3] <- 2
 ```
-# Przekonwertowanie danych na macierz i transpozycja
+
 ```{r}
-Geno <- matrix(Geno, nrow = p, ncol = n, byrow = TRUE)
+Geno <- matrix(Geno, nrow = p, ncol = n, 
+byrow = TRUE) 
+```
+
+# Przekonwertowanie danych na macierz i transpozycja
+
+```{r}
 Geno <- t(Geno)
 ```
 # spr Wymiarów
+
 ```{r}
 dim(Geno)
 ```
 # Wczytanie danych i sprawdzenie zgodności
 ```{r}
-rice.pheno <- read.table("RiceDiversity_44K_Phenotypes_34traits_PLINK.txt",
-                         header = TRUE, stringsAsFactors = FALSE, sep = "\t")
-head(rice.pheno)
-
-# wymiary - pierwsza wartość powinna być taka sama jak w `dim(Geno)`
-dim(rice.pheno)
-
-# przypisujemy nazwy wierszy dla macierzy Geno na podstawie drugiej kolumny (V2) z ramki FAM, zawierającej identyfikatory próbek
-
-rownames(Geno) <- FAM$V2
-
-# sprawdzenie zgodności
-table(rownames(Geno) == rice.pheno$NSFTVID)
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
+#dane fenotypowe
+rice.pheno <- read.table("RiceDiversity_44k_Phenotypes_34traits_PLINK.txt", header = TRUE, stringsAsFactors = FALSE, sep = "\t")
 ```
-#Wyodrębnienie cechy
+
 ```{r}
-y <- matrix(rice.pheno$Flowering.time.at.Arkansas)
+head(rice.pheno)
+```
+# wumiaru
+```{r}
+
+dim(rice.pheno)
+```
+# Wyodrębnienie cechy
+```{r}
+#Flowering time wyodrebniamy
+y <-matrix(rice.pheno$Flowering.time.at.Arkansas)
 rownames(y) <- rice.pheno$NSFTVID
 index <- !is.na(y)
-y <- y[index, 1, drop = FALSE]
+Y <- y [index, 1, drop = FALSE]
 Geno <- Geno[index, ]
-table(rownames(Geno) == rownames(y))
 ```
+
 # Dopasowanie fenotypowych danych do danychgenotypowych i bez brakujących danych
 
-##PRzeprowadzkontrole jakości 
+## PRzeprowadzkontrole jakości 
 ```{r}
-for (j in 1:ncol(Geno)){
-  Geno[, j] <- ifelse(is.na(Geno[, j]), mean(Geno[, j], nar.rm = TRUE), Geno[, j])
+for (j in 1:ncol(Geno)) {
+  Geno[, j] <- ifelse(is.na(Geno[, j]), mean (Geno[, j],
+na.rm = TRUE), Geno)
 }
 ```
-## obliczanie frekwencji allelu mniejszościowego dla każdego SNP
 ```{r}
-
+p <- colSums(Geno)/(2* nrow(Geno))
+maf <- ifelse (p> 0.5, 1-p, p)
+maf.index <- which(maf < 0.05)
+Geno1 <- Geno[, -maf.index]
+```
+```{r}
+dim(Geno1)
+```
+# Odfiltrowanie markerów z MAF < 5%.
+```{r}
+#setwd("C:/Users/homer/Desktop/ABWG-GWAS")
+# obliczanie frekwencji allelu mniejszościowego dla każdego SNP
 p <- colSums(Geno)/(2 * nrow(Geno))
 
 # definiujemy MAF
@@ -112,15 +167,18 @@ Geno1 <- Geno[, -maf.index]
 # sprawdzamy wymiary nowej macierzy
 dim(Geno1)
 ```
-#Zaktualizowanie pliku ``.map`` i podanie nowych wymiarów danych genotypowych oraz informacji o markerach.
+
+# Zaktualizowanie pliku ``.map`` i podanie nowych wymiarów danych genotypowych oraz informacji o markerach.
 ```{r}
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
 MAP <- read.table("sativas413.map")
 dim(MAP)
 MAP1 <- MAP[-maf.index, ]
 dim(MAP1)
 ```
-#analiza pca
+# analiza pca
 ```{r}
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
 Geno1 <- as.matrix(Geno1)
 sample <- row.names(Geno1)
 length(sample)
@@ -129,18 +187,21 @@ colnames(Geno1) <- MAP1$V2
 snp.id <- colnames(Geno1)
 length(snp.id)
 ```
-#plik GDS.
-##Od tego momentu kod nie mógł działać ze względu na problem z miaramisnp.id i snp.position
+
+# plik GDS.
+## Od tego momentu kod nie mógł działać ze względu na problem z miaramisnp.id i snp.position
 ```{r}
-snpgdsCreateGeno("44k.gds", genmat = Geno1, sample.id = sample, snp.id = snp.id, 
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
+snpgdsCreateGeno("44k.geno", genmat = Geno1, sample.id = sample, snp.id = snp.id, 
                  snp.chromosome = MAP1$V1, snp.position = MAP1$V4, snpfirstdim = FALSE)
 
 geno_44k <- snpgdsOpen("44k.gds")
 snpgdsSummary("44k.gds")
 ```
-#PCA
+# PCA
 ```{r}
-pca <- snpgdsPCA(geno_44k, snp.id = colnames(Geno1))
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
+pca <- snpgdsPCA(gds_44k, snp.id = colnames(Geno1))
 pca <- data.frame(sample.id = row.names(Geno1), 
                   EV1 = pca$eigenvect[, 1], 
                   EV2 = pca$eigenvect[, 2], 
@@ -150,8 +211,9 @@ pca <- data.frame(sample.id = row.names(Geno1),
 
 plot(pca$EV2, pca$EV1, xlab = "PC2", ylab = "PC1")
 ```
-#dodatkowe informacje o próbkach z pliku ``gerplasm.csv.``
+# dodatkowe informacje o próbkach z pliku ``gerplasm.csv.``
 ```{r}
+setwd("C:/Users/homer/Desktop/ABWG-GWAS")
 pca_1 <- read.csv("RiceDiversity.44K.germplasm.csv", 
                   header = TRUE, skip = 1, stringsAsFactors = FALSE)
 pca_2 <- pca_1[match(pca$sample.id, pca_1$NSFTV.ID), ]
@@ -164,7 +226,6 @@ plot(pca_population$EV1, pca_population$EV2, xlab = "PC1", ylab = "PC2",
 legend(x = "topright", legend = levels(factor(pca_population$population)), 
        col = c(1:6), pch = 1, cex = 0.6)
 ```
-
 # dane do analizy GWAS
 ```{r}
 geno_final <- data.frame(marker = MAP1[, 2], chrom = MAP1[, 1], pos = MAP1[, 4], 
@@ -172,8 +233,7 @@ geno_final <- data.frame(marker = MAP1[, 2], chrom = MAP1[, 1], pos = MAP1[, 4],
 
 pheno_final <- data.frame(NSFTV_ID = rownames(y), y = y)
 ```
-
-#GWAS
+# GWAS
 ```{r}
 GWAS <- GWAS(pheno_final, geno_final, min.MAF = 0.05, P3D = TRUE, plot = FALSE)
 ```
@@ -181,29 +241,14 @@ GWAS <- GWAS(pheno_final, geno_final, min.MAF = 0.05, P3D = TRUE, plot = FALSE)
 ```{r}
 GWAS_1 <- GWAS %>% filter(y != "0")
 GWAS_1 %>% filter(y < 1e-04)
-```
 
-```{r}
 head(GWAS_1)
+
+
 ```
 # Wykres manhattan
 ```{r}
 manhattan(x = GWAS_1, chr = "chrom", bp = "pos", p = "y", snp = "marker", 
-          col = c("blue4", "orange3"), suggestiveline = -log10(1e-04), logp = TRUE)
-```
-
-```{r}
-pakiety <- c("VariantAnnotation", "GenomicRanges", "AnnotationHub")
-BiocManager::install(pakiety)
-```
-
-```{r}
-library(VariantAnnotation)
-library(GenomicRanges)
-library(AnnotationHub)
-```
-
-```{r}
-BiocManager::install("AnnotationHub")
+          col = c("blue4", "orange3"), suggestiveline = -log10(1e-04), logp = TRUE)a
 ```
 
