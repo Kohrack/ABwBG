@@ -7,7 +7,7 @@ date: "2024-11-12"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
+# Instalacja
 ```{r} 
 install.packages("BiocManager")
 library("BiocManager")
@@ -48,20 +48,21 @@ length(trimmed_reads1a)
 sum(width(trimmed_reads1) < width(fq_reads1))
 sum(width(trimmed_reads2) < width(fq_reads2))
 ```
- # Filtrowanie odczytów forward
+# Filtrowanie odczytów forward
 ```{r}
    filtered_reads1 <- trimmed_reads1[width(trimmed_reads1) >= 50]
 ```
-  # Filtrowanie odczytów reverse
+# Filtrowanie odczytów reverse
   
 ```{r}
  filtered_reads2 <- trimmed_reads2[width(trimmed_reads2) >= 50]
 ```
-#
+#wyliczanie długości
 ```{r}
 length(filtered_reads1)/length(trimmed_reads1)*100
 length(filtered_reads2)/length(trimmed_reads2)*100
 ```
+#Pisaniepliku fastq
 ```{r}
 writeFastq(filtered_reads1,"C:/Users/homer/Downloads/ecoli_simulated1_processed.fq")
 
@@ -69,7 +70,7 @@ writeFastq(filtered_reads1,"C:/Users/homer/Downloads/ecoli_simulated1_processed.
 ```{r}
 writeFastq(filtered_reads2,"C:/Users/homer/Downloads/ecoli_simulated1_processed2.fq")
 ```
-
+# Generowanie nowycg raportów QC dla przetworzonych danych:
 ```{r}
 qa_results1 <- qa("C:/Users/homer/Downloads/ecoli_simulated1_with_adapters.fq", type = "fastq")   
 qa_results1_processed <- qa( "C:/Users/homer/Downloads/ecoli_simulated1_processed.fq", type = "fastq")
@@ -81,6 +82,7 @@ qa_results2_processed <- qa("C:/Users/homer/Downloads/ecoli_simulated1_processed
 report(qa_results2, dest = "C:/Users/homer/Downloads/QA_report_read2")
 report(qa_results2_processed, dest = "C:/Users/homer/Downloads/QA_report_read2_processed")
 ```
+# Słupkowe wykresy do analizy długościodczytów
 ```{r}
 # Po przycinaniu (forward)
 hist(width(fq_reads1), breaks = 50, main = "Długość odczytów forward przez przycinaniem")
@@ -101,6 +103,7 @@ BiocManager::install("Biostrings")
 library(Biostrings)
    adapter_seq <- DNAString("AGATCGGAAGAGC")
 ```
+# Wykrywanie i usuwanie sekwencji adapterów
 ```{r}
 # Przycinanie adapterów z odczytów forward:
 trimmed_reads1_adapt <- trimLRPatterns(
@@ -122,7 +125,7 @@ filtered_reads2 <- trimmed_reads2_adapt
 
 ```
 
-#sprawdzanie
+# sprawdzanie
 ```{r}
 # Porównaj długości przed i po przycięciu adapterów
 length(filtered_reads1)
