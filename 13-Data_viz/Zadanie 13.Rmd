@@ -38,7 +38,7 @@ ggplot(iris, aes(x=Species, y=Sepal.Width, fill=Species)) +
   geom_boxplot(width=0.1, color="black", outlier.shape=NA) +
   labs(title="Violin + Boxplot - Iris")
 ```
-#Stacked Bar Plot (skumulowane słupki)
+# Stacked Bar Plot (skumulowane słupki)
 ## Dane przykładowe
 ```{r}
 
@@ -52,7 +52,7 @@ ggplot(df_bar, aes(x=Sample, y=Count, fill=Category)) +
   geom_bar(stat="identity") +
   labs(title="Skumulowany wykres słupkowy")
 ```
-#Waffle Plot
+# Waffle Plot
 ## install.packages("waffle")  # w razie potrzeby
 ```{r}
 
@@ -65,7 +65,7 @@ waffle(parts, rows=5,
        title="Przykładowy Waffle Plot",
        legend_pos = "bottom")
 ```
-#Time Series Plot (analiza czasowa)
+# Time Series Plot (analiza czasowa)
 ```{r}
 # Dane przykładowe (np. ekspresja genu w 5 punktach czasowych, dla 2 genów)
 df_time <- data.frame(
@@ -79,8 +79,8 @@ ggplot(df_time, aes(x=Time, y=Expression, color=Gene)) +
   geom_point() +
   labs(title="Analiza czasowa ekspresji genów")
 ```
-#Waterfall Plot
-##5a. Klasyczny Waterfall (prosta wersja)
+# Waterfall Plot
+## 5a. Klasyczny Waterfall (prosta wersja)
 ### Dane sztuczne: zmiana wielkości guza w % (hipotetyczny przykład)
 ```{r}
 
@@ -102,7 +102,7 @@ ggplot(df_wf, aes(x=Pacjent, y=Zmiana, fill=Zmiana>0)) +
   labs(title="Klasyczny Waterfall Plot - Zmiana wielkości",
        x="Pacjent", y="Zmiana (%)")
 ```
-#5b. Waterfall w analizach mutacji (pakiet maftools)
+# 5b. Waterfall w analizach mutacji (pakiet maftools)
 ```{r}
 BiocManager::install("maftools")
 library(maftools)
@@ -113,8 +113,8 @@ laml.maf <- system.file("extdata", "tcga_laml.maf.gz", package = "maftools")
 laml <- read.maf(maf = laml.maf)
 oncoplot(maf = laml, top=10)  # typowy "onco waterfall" w stylu mutacji
 ```
-#Volcano Plot
-##Metoda 1: base R (przykład minimalny)
+# Volcano Plot
+## Metoda 1: base R (przykład minimalny)
 ```{r}
 # Przykładowe dane
 set.seed(123)
@@ -149,7 +149,7 @@ EnhancedVolcano(df_volcano,
   subtitle = 'DE analysis',
   legendPosition = "right")
 ```
-##Metoda 2: pakiet EnhancedVolcano
+## Metoda 2: pakiet EnhancedVolcano
 ```{r}
 install.packages("pheatmap")
 library(pheatmap)
@@ -167,7 +167,7 @@ pheatmap(mat,
          main="Heatmap - 10 genów x 5 próbek")
 ```
 
-#Heatmap
+# Heatmap
 ```{r}
 data(iris)
 pca_result <- prcomp(iris[,1:4], center = TRUE, scale. = TRUE)
@@ -206,8 +206,8 @@ ggplot(tsne_df, aes(x=X, y=Y, color=Species)) +
   labs(title="t-SNE - Iris (bez duplikatów)")
 
 ```
-#Wykresy redukcji wymiarów (PCA, t-SNE)
-##8a. PCA
+# Wykresy redukcji wymiarów (PCA, t-SNE)
+## 8a. PCA
 
 ```{r}
 data(iris)
@@ -224,7 +224,7 @@ ggplot(pca_df, aes(x=PC1, y=PC2, color=Species)) +
   labs(title="PCA - Iris")
 ```
 
-##8b. t-SNE
+## 8b. t-SNE
 ```{r}
 # install.packages("Rtsne")
 library(Rtsne)
@@ -249,7 +249,7 @@ ggplot(tsne_df, aes(x=X, y=Y, color=Species)) +
   labs(title="t-SNE - Iris (bez duplikatów)")
 
 ```
-#Manhattan Plot
+# Manhattan Plot
 ```{r}
 install.packages("qqman")
 library(qqman)
@@ -266,8 +266,8 @@ manhattan(df_gwas,
           suggestiveline = -log10(1e-3),
           main="Przykładowy Manhattan Plot")
 ```
-#Venn Diagrams i UpSet Plots
-##Diagram Venna
+# Venn Diagrams i UpSet Plots
+## Diagram Venna
 ```{r}
 install.packages("VennDiagram")
 library(VennDiagram)
@@ -287,7 +287,7 @@ venn <- venn.diagram(
 grid.newpage()
 grid.draw(venn)
 ```
-##UpSet Plot
+## UpSet Plot
 ```{r}
 
 install.packages("UpSetR")
@@ -304,12 +304,12 @@ upset(fromList(listInput),
       main.bar.color = "steelblue",
       sets.bar.color = "tomato")
 ```
-#Pathway and Annotation Plots (np. KEGG)
+# Pathway and Annotation Plots (np. KEGG)
 ```{r}
 BiocManager::install("pathview")
 library(pathview)
 ```
-#Pathway and Annotation Plots (np. KEGG)
+# Pathway and Annotation Plots (np. KEGG)
 ```{r}
 # Przykładowe sztuczne dane (Entrez ID i logFC)
 genelist <- c("1840"=2, "4609"=-1, "7124"=1)  # Entrez ID
@@ -320,7 +320,7 @@ pv.out <- pathview(gene.data = genelist,
                    species = "hsa",
                    out.suffix="example")
 ```
-#Drzewo filogenetyczne
+# Drzewo filogenetyczne
 ```{r}
 install.packages("ape")
 library(ape)
@@ -328,7 +328,7 @@ library(ape)
 tree <- rtree(10)  # losowe drzewo z 10 taksonami
 plot(tree, main="Random Phylogenetic Tree")
 ```
-#Synteny Plots (np. genoPlotR)
+# Synteny Plots (np. genoPlotR)
 ```{r}
 install.packages("genoPlotR")
 library(genoPlotR)
@@ -340,7 +340,7 @@ plot_gene_map(dna_segs = barto$dna_segs,
               comparisons = barto$comparisons,
               main = "Synteny plot - Bartonella genomes (genoPlotR)")
 ```
-#Circos Plots
+# Circos Plots
 ```{r}
 install.packages("circlize")
 library(circlize)
@@ -366,7 +366,7 @@ chr_ranges <- bed %>%
   )
 
 ```
-#Circos Plots
+# Circos Plots
 
 ```{r}
 library(circlize)
@@ -416,7 +416,7 @@ for(i in seq_len(nrow(bed))) {
 circos.clear()
 ```
 
-#Ideograms (np. karyoploteR)
+# Ideograms (np. karyoploteR)
 ```{r}
 BiocManager::install("karyoploteR")
 library(karyoploteR)
