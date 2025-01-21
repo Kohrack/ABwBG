@@ -8,13 +8,13 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-#Instalacja Biocmanager
+# Instalacja Biocmanager
 ```{r}
 # Instalacja menedżera pakietów Bioconductor (jeśli nie jest zainstalowany)
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 ```
-#instalacja pozostałych narzędzi
+# instalacja pozostałych narzędzi
 ```{r}
 BiocManager::install(c("VariantTools", "Rsamtools", "GenomicRanges", "GenomicFeatures", "VariantAnnotation", "BiocParallel"))
 ```
@@ -34,12 +34,12 @@ library(BiocParallel)
 ```{r}
 vignette("VariantTools")
 ```
-#Ustalanie work directory
+# Ustalanie work directory
 ```{r}
 setwd("C:/Users/homer/Downloads/alignment")
 list.files()
 ```
-#określania wartości i konfiguracja środowiska pracy i Wczytanie danych
+# określania wartości i konfiguracja środowiska pracy i Wczytanie danych
 ```{r}
 bamfile <- "C:/Users/homer/Downloads/alignment/aligned_sample.BAM"
 bam <- BamFile(bamfile)
@@ -49,7 +49,7 @@ ref_genome <- "C:/Users/homer/Downloads/alignment/ecoli_reference.fasta"
 fa <- FaFile(ref_genome)
 
 ```
-#Przesortowanie pliku Bam
+# Przesortowanie pliku Bam
 ```{r}
 # Zdefiniuj ścieżkę wejściową i wyjściową
 input_bam <- "C:/Users/homer/Downloads/alignment/aligned_sample.BAM"
@@ -61,18 +61,18 @@ sortBam(file = input_bam, destination = output_bam, overwrite = TRUE)
 #Zdefiniuj przesortowany plik
 sorted_bam <- "C:/Users/homer/Downloads/sorted_aligned_sample.BAM.bam"    
 ```
-#Indexowanie pliku fasta
+# Indexowanie pliku fasta
 ```{r}
 indexFa(ref_genome)
 indexBam(sorted_bam)
 ```
-#Kontrola jakości danych sekwencyjnych
-##nagłówekpliku bam
+# Kontrola jakości danych sekwencyjnych
+## nagłówek pliku bam
 ```{r}
 scanBamHeader(bam)
 
 ```
-#liczenie iwizualizacja
+# liczenie i wizualizacja
 ```{r}
 idxstats <- idxstatsBam(sorted_bam)
 print(idxstats)
@@ -84,7 +84,7 @@ summary(coverage_data[[1]]) # dla genomów prokariota
 plot(coverage_data[[1]], main="Pokrycie genomu dla sekwencji U00096.3", ylab="Pokrycie", xlab="Pozycja w genomie") # uwaga: zajmuje dużo czasu
 
 ```
-#wykrywanie wariantów
+# wykrywanie wariantów
 ```{r}
 # Ustaw parametry pileup
 pileup_param <- PileupParam(
@@ -98,7 +98,7 @@ pile <- pileup(sorted_bam, scanBamParam = ScanBamParam(), pileupParam = pileup_p
 
 ```
 
-#Konversja danych pilup
+# Konversja danych pilup
 ```{r}
 library(dplyr)
 
@@ -107,7 +107,7 @@ pile_df <- pile %>%
     mutate(seqnames = ifelse(seqnames == "U00096.3", "NC_000913.3", seqnames))
 
 ```
-#Grupowanie danych
+# Grupowanie danych
 ```{r}
 variant_candidates <- pile_df %>%
     group_by(seqnames, pos) %>%
@@ -142,7 +142,7 @@ variant_candidates <- pile_df %>%
 # Przykład wyświetlenia wariantów
 head(variant_candidates)
 ```
-#Filtracja i kesport danych
+# Filtracja i kesport danych
 ```{r}
 # Filtracja wariantów na podstawie jakości i głębokości pokrycia
 filtered_variants <- variant_candidates %>%
