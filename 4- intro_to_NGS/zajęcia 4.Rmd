@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-instalacja pakietu ```BiocManager```
+# instalacja pakietu ```BiocManager```
 
 ```{r}
 install.packages("BiocManager")
@@ -54,22 +54,22 @@ library(Biostrings)
 
 library("Rqc")
 ```
-#Wczytywanie sekwencji fasta
+# Wczytywanie sekwencji fasta
 ```{r}
 dna_seqs <- readDNAStringSet("C:/Users/homer/Downloads/examples.fasta")
 ```
-#sekwencje między 1 a 5
+# sekwencje między 1 a 5
 ```{r}
 dna_seqs[1:5]
 ```
-#Wytwarzanie sekwencji komplementarnej reverse
+# Wytwarzanie sekwencji komplementarnej reverse
 ```{r}
 rev_comp_seqs <- reverseComplement(dna_seqs)
 ```
 ```{r}
 rev_comp_seqs[1:5]
 ```
-#Obliczanie zawartości par GC
+# Obliczanie zawartości par GC
 ```{r}
 gc_content <- letterFrequency(dna_seqs, letters = c("G", "C"), as.prob = TRUE)
 gc_content
@@ -81,7 +81,7 @@ library(ShortRead)
 # Ścieżka do pliku FASTQ
 fastq_file <- "C:/Users/homer/Downloads/examples.fasta"
 ```
-#Dopasowywanie adapteru do sekwencji
+# Dopasowywanie adapteru do sekwencji
 ```{r}
 adapter_seq <- DNAString("AGATCGGAAGAGC")
 ```
@@ -89,7 +89,7 @@ adapter_seq <- DNAString("AGATCGGAAGAGC")
 match_positions <- vmatchPattern(adapter_seq, sread(dna_seqs))
 ```
 
-#
+# Wytwarzanie odpowiedniego wykresu za pomocą ggplot
 ```{r}
 library(Biostrings)
 library(ggplot2)
