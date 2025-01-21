@@ -1,0 +1,29 @@
+---
+title: "Zadanie 12"
+author: "Wojciech Błaszczyk"
+date: "2025-01-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Instalacja niezbędnych pakietów
+
+```{r}
+pakiety <- c("VariantAnnotation", "GenomicRanges", "AnnotationHub")
+BiocManager::install(pakiety)
+```
+
+
+```{r}
+library(VariantAnnotation)
+library(GenomicRanges)
+library(AnnotationHub)
+```
+
+```{r}
+BiocManager::install("AnnotationHub")
+```
+
+# Z Nieznanego mi powodu nie mam plików niezbędnych do wykonanie odczytów według wymagań zadania
