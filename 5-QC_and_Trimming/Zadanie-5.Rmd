@@ -1,0 +1,121 @@
+---
+title: "Zadanie 5"
+output: html_document
+date: "2024-11-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+```
+
+```{r}
+BiocManager::install(c("ShortRead", "Rqc", "Biostrings"), force = TRUE)
+```
+```{r}
+library(ShortRead)
+library(Rqc)
+library(Biostrings)
+
+packageVersion("ShortRead")
+packageVersion("Rqc")
+packageVersion("Biostrings")
+```
+```{r}
+library(ShortRead)
+
+# Ścieżka do pliku FASTQ
+fastq_file <- "C:/Users/homer/Downloads/SRR31479171.fastq.gz"
+
+# Wczytanie odczytów
+reads <- readFastq(fastq_file)
+
+# Podstawowe informacje
+length(reads)  # liczba odczytów
+reads[1]       # pierwszy odczyt
+
+# Kontrola jakości
+qa_results <- qa(fastq_file, type = "fastq")
+report(qa_results, dest = "C:/Users/homer/Downloads")
+```
+```{r}
+fq_file <- "C:/Users/homer/Downloads/SRR31479171.fastq.gz"
+fq_reads <- readFastq(fq_file)
+```
+
+```{r}
+length(fq_reads)
+```
+```{r}
+fq_reads[1:5]
+```
+```{r}
+qa_results <- qa(fq_file, type = "fastq")
+```
+```{r}
+report(qa_results, dest = "C:/Users/homer/Downloads/Index2.html")
+```
+
+#Tu mialo być Rqc
+```{r}
+rqc_results <- rqc(path = "C:/Users/homer/Desktop/data", pattern = "SRR31479171.fastq.gz", sample = TRUE)
+```
+
+```{r}
+gc_content <- letterFrequency(sread(fq_reads), letters = "GC", as.prob = TRUE)
+hist(gc_content, breaks = 50, main = "Zawartość GC w oryginalnych odczytach", xlab = "Procent GC")
+```
+
+``{r}
+fq_files <- list.files(path = "C:/Users/homer/Downloads/SRR31479171.fastq.gz", pattern = "SRR31368982.fastq.gz", full.names = TRUE)
+qa_results <- qa(fq_files, type = "fastq")
+report(qa_results, dest = "QA_report_multi")
+```
+``{r}
+# Przycinanie odczytów forward
+   trimmed_reads1 <- trimTailw(fq_reads1, k = 2, a = "B", halfwidth = 1)
+
+
+
+   
+   # Przycinanie odczytów reverse
+   trimmed_reads2 <- trimTailw(fq_reads2, k = 2, a = "B", halfwidth = 1)
+```
+
+``{r}
+   sum(width(trimmed_reads1) < width(fq_reads1))
+   sum(width(trimmed_reads2) < width(fq_reads2))
+```
+``{r}
+# Filtrowanie odczytów forward
+   filtered_reads1 <- trimmed_reads1[width(trimmed_reads1) >= 50]
+   
+   # Filtrowanie odczytów reverse
+   filtered_reads2 <- trimmed_reads2[width(trimmed_reads2) >= 50]
+```
+
+``{r}
+ # Odczyty forward
+   length(trimmed_reads1)       # Po przycinaniu
+   length(filtered_reads1)      # Po filtracji
+   
+   # Odczyty reverse
+   length(trimmed_reads2)
+   length(filtered_reads2)
+```
+``{r}
+ writeFastq(filtered_reads1, "ecoli_simulated1_processed2za.fq")
+ writeFastq(filtered_reads2, "ecoli_simulated2_processed2za.fq")
+```
+``{r}
+qa_results1_processed <- qa("ecoli_simulated1_processed2za.fq", type = "fastq")
+   report(qa_results1_processed, dest = "C:/Users/homer/Desktop/data")
+   
+   qa_results2_processed <- qa("ecoli_simulated2_processed2za.fq", type = "fastq")
+   report(qa_results2_processed, dest = "C:/Users/homer/Desktop/data")
+```
+
