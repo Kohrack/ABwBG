@@ -1,0 +1,189 @@
+---
+title: "Biocondunctor intro"
+output: html_document
+date: "2024-10-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+instalacja pakietu ```BiocManager```
+
+```{r}
+install.packages("BiocManager")
+```
+```{r}
+BiocManager::install("GenomicFeatures")
+```
+```{r}
+BiocManager::install("library("GenomicFeatures") )
+```
+```{r}
+BiocManager::install("ShortRead")
+```
+```{r}
+BiocManager::install(
+```
+
+
+```{r}
+"Biostrings"
+```
+
+
+```{r}
+)
+```
+
+```{r}
+library(BiocManager) 
+BiocManager::install("GenomicFeatures")
+```
+```{r}
+library("GenomicFeatures") 
+```
+```{r}
+library("ShortRead") 
+```
+```{r}
+library(Biostrings)
+```
+```{r}
+
+library("Rqc")
+```
+#Wczytywanie sekwencji fasta
+```{r}
+dna_seqs <- readDNAStringSet("C:/Users/homer/Downloads/examples.fasta")
+```
+#sekwencje między 1 a 5
+```{r}
+dna_seqs[1:5]
+```
+#Wytwarzanie sekwencji komplementarnej reverse
+```{r}
+rev_comp_seqs <- reverseComplement(dna_seqs)
+```
+```{r}
+rev_comp_seqs[1:5]
+```
+#Obliczanie zawartości par GC
+```{r}
+gc_content <- letterFrequency(dna_seqs, letters = c("G", "C"), as.prob = TRUE)
+gc_content
+```
+
+```{r}
+library(ShortRead)
+
+# Ścieżka do pliku FASTQ
+fastq_file <- "C:/Users/homer/Downloads/examples.fasta"
+```
+#Dopasowywanie adapteru do sekwencji
+```{r}
+adapter_seq <- DNAString("AGATCGGAAGAGC")
+```
+```{r}
+match_positions <- vmatchPattern(adapter_seq, sread(dna_seqs))
+```
+
+#
+```{r}
+library(Biostrings)
+library(ggplot2)
+
+# Obliczenie częstości nukleotydów
+nucleotide_freq <- alphabetFrequency(dna_seqs, as.prob = TRUE)
+
+# Konwersja do ramki danych
+nuc_df <- as.data.frame(nucleotide_freq)
+
+# Dodanie identyfikatora sekwencji
+nuc_df$Sequence <- rownames(nuc_df)
+
+# Wykres słupkowy częstości nukleotydów dla pierwszej sekwencji
+nuc_long <- reshape2::melt(nuc_df[1, c("A", "C", "G", "T")])
+
+ggplot(nuc_long, aes(x = variable, y = value)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Częstość nukleotydów w pierwszej sekwencji",
+       x = "Nukleotyd",
+       y = "Częstość")
+```
+```{r}
+fq_file <- "C:/Users/homer/Desktop/data/SRR31136237.fastq"
+fq_reads <- readFastq(fq_file)
+```
+```{r}
+length(fq_reads)
+fq_reads[1:5]
+```
+```{r}
+qa_results <- qa(fq_file, type = "fastq")
+report(qa_results, dest = "C:/Users/homer/Desktop/data/Raportt1.html")
+```
+```{r}
+library(Rqc)
+```
+
+```{r}
+rqc_results <- rqc(path = "C:/Users/homer/Desktop/data", pattern = "SRR31136237.fastq", sample = TRUE)
+rqcReport(rqc_results, outdir = "Rqc_report")
+```
+```{r}
+trimmed_reads <- trimTailw(fq_reads, k = 2, a = "B", successive = TRUE,  halfwidth = 1)
+sum(width(trimmed_reads) < width(fq_reads))
+```
+```{r}
+filtered_reads <- trimmed_reads[width(trimmed_reads) >= 50]
+length(trimmed_reads)
+length(filtered_reads)
+```
+```{r}
+writeFastq(filtered_reads, "C:/Users/homer/Downloads/stuff_processed.fastq.gz")
+qa_results_processed <- qa("C:/Users/homer/Downloads/stuff_processed.fastq.gz", type = "fastq")
+report(qa_results_processed, dest = "QA_report_processed")
+```
+```{r}
+# Przed przycinaniem
+hist(width(fq_reads), breaks = 50, main = "Długość odczytów przed przycinaniem", xlab = "Długość (bp)")
+
+# Po przycinaniu
+hist(width(filtered_reads), breaks = 50, main = "Długość odczytów po przycinaniu", xlab = "Długość (bp)")
+```
+```{r}
+gc_content <- letterFrequency(sread(fq_reads), letters = "GC", as.prob = TRUE)
+hist(gc_content, breaks = 50, main = "Zawartość GC w oryginalnych odczytach", xlab = "Procent GC")
+```
+```{r}
+adapter_seq <- DNAString("AGATCGGAAGAGC")
+match_positions <- vmatchPattern(adapter_seq, sread(fq_reads))
+```
+
+```{r}
+# Funkcja do przycinania odczytów do pozycji początku adaptera
+trim_adapters <- function(reads, matches) {
+  for (i in seq_along(reads)) {
+    if (length(matches[[i]]) > 0) {
+      end_pos <- start(matches[[i]][1]) - 1
+      reads[[i]] <- subseq(reads[[i]], start = 1, end = end_pos)
+    }
+  }
+  return(reads)
+}
+
+fq_reads_trimmed <- trim_adapters(fq_reads, match_positions)
+```
+
+```{r}
+# Przy użyciu funkcji trimLRPatterns
+fq_reads_trimmed <- trimLRPatterns(Lpattern = adapter_seq, subject = sread(fq_reads))
+
+```
+
+```{r}
+
+```
+
